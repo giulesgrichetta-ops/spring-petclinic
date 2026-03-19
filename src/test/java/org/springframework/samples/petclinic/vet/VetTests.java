@@ -15,6 +15,8 @@
  */
 package org.springframework.samples.petclinic.vet;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.util.SerializationUtils;
 
@@ -36,6 +38,51 @@ class VetTests {
 		assertThat(other.getFirstName()).isEqualTo(vet.getFirstName());
 		assertThat(other.getLastName()).isEqualTo(vet.getLastName());
 		assertThat(other.getId()).isEqualTo(vet.getId());
+	}
+
+	@Test
+	void testAddSpecialty() {
+		Vet vet = new Vet();
+		Specialty specialty = new Specialty();
+		specialty.setId(1);
+		specialty.setName("radiology");
+		vet.addSpecialty(specialty);
+		assertThat(vet.getNrOfSpecialties()).isEqualTo(1);
+	}
+
+	@Test
+	void testGetSpecialtiesSorted() {
+		Vet vet = new Vet();
+		Specialty surgery = new Specialty();
+		surgery.setId(1);
+		surgery.setName("surgery");
+		Specialty dentistry = new Specialty();
+		dentistry.setId(2);
+		dentistry.setName("dentistry");
+		vet.addSpecialty(surgery);
+		vet.addSpecialty(dentistry);
+		List<Specialty> specialties = vet.getSpecialties();
+		assertThat(specialties).hasSize(2);
+		assertThat(specialties.get(0).getName()).isEqualTo("dentistry");
+		assertThat(specialties.get(1).getName()).isEqualTo("surgery");
+	}
+
+	@Test
+	void testGetNrOfSpecialtiesEmpty() {
+		Vet vet = new Vet();
+		assertThat(vet.getNrOfSpecialties()).isEqualTo(0);
+	}
+
+	@Test
+	void testGetSpecialtiesReturnsNewListEachTime() {
+		Vet vet = new Vet();
+		Specialty specialty = new Specialty();
+		specialty.setId(1);
+		specialty.setName("radiology");
+		vet.addSpecialty(specialty);
+		List<Specialty> first = vet.getSpecialties();
+		List<Specialty> second = vet.getSpecialties();
+		assertThat(first).isNotSameAs(second);
 	}
 
 }

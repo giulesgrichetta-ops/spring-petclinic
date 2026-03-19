@@ -16,6 +16,8 @@
 
 package org.springframework.samples.petclinic.owner;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -89,6 +91,21 @@ class VisitControllerTests {
 			.andExpect(model().attributeHasErrors("visit"))
 			.andExpect(status().isOk())
 			.andExpect(view().name("pets/createOrUpdateVisitForm"));
+	}
+
+	@Test
+	void loadPetWithVisitInvalidPetId() {
+		Exception exception = assertThrows(jakarta.servlet.ServletException.class,
+				() -> mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID, 999)));
+		assertThat(exception.getCause()).isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	void loadPetWithVisitInvalidOwnerId() {
+		given(this.owners.findById(99)).willReturn(Optional.empty());
+		Exception exception = assertThrows(jakarta.servlet.ServletException.class,
+				() -> mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/visits/new", 99, TEST_PET_ID)));
+		assertThat(exception.getCause()).isInstanceOf(IllegalArgumentException.class);
 	}
 
 }
