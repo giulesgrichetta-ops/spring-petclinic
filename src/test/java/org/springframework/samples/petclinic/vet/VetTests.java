@@ -38,4 +38,39 @@ class VetTests {
 		assertThat(other.getId()).isEqualTo(vet.getId());
 	}
 
+	@Test
+	void shouldAddSpecialty() {
+		Vet vet = new Vet();
+		Specialty specialty = new Specialty();
+		specialty.setName("dentistry");
+		vet.addSpecialty(specialty);
+		assertThat(vet.getNrOfSpecialties()).isEqualTo(1);
+	}
+
+	@Test
+	void shouldReturnSpecialtiesSortedByName() {
+		Vet vet = new Vet();
+		Specialty surgery = new Specialty();
+		surgery.setName("surgery");
+		Specialty dentistry = new Specialty();
+		dentistry.setName("dentistry");
+		vet.addSpecialty(surgery);
+		vet.addSpecialty(dentistry);
+		assertThat(vet.getSpecialties().get(0).getName()).isEqualTo("dentistry");
+		assertThat(vet.getSpecialties().get(1).getName()).isEqualTo("surgery");
+	}
+
+	@Test
+	void shouldReturnZeroSpecialtiesInitially() {
+		Vet vet = new Vet();
+		assertThat(vet.getNrOfSpecialties()).isEqualTo(0);
+	}
+
+	@Test
+	void shouldInitializeSpecialtiesSetWhenNull() {
+		Vet vet = new Vet();
+		assertThat(vet.getSpecialties()).isNotNull();
+		assertThat(vet.getSpecialties()).isEmpty();
+	}
+
 }
