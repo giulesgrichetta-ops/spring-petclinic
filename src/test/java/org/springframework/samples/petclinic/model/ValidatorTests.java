@@ -23,6 +23,8 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.samples.petclinic.owner.Owner;
+import org.springframework.samples.petclinic.owner.Visit;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import jakarta.validation.ConstraintViolation;
@@ -55,6 +57,120 @@ class ValidatorTests {
 		ConstraintViolation<Person> violation = constraintViolations.iterator().next();
 		assertThat(violation.getPropertyPath()).hasToString("firstName");
 		assertThat(violation.getMessage()).isEqualTo("must not be blank");
+	}
+
+	@Test
+	void shouldNotValidateWhenLastNameEmpty() {
+		LocaleContextHolder.setLocale(Locale.ENGLISH);
+		Person person = new Person();
+		person.setFirstName("John");
+		person.setLastName("");
+
+		Validator validator = createValidator();
+		Set<ConstraintViolation<Person>> constraintViolations = validator.validate(person);
+
+		assertThat(constraintViolations).hasSize(1);
+		ConstraintViolation<Person> violation = constraintViolations.iterator().next();
+		assertThat(violation.getPropertyPath()).hasToString("lastName");
+	}
+
+	@Test
+	void shouldValidateWhenBothNamesProvided() {
+		LocaleContextHolder.setLocale(Locale.ENGLISH);
+		Person person = new Person();
+		person.setFirstName("John");
+		person.setLastName("Smith");
+
+		Validator validator = createValidator();
+		Set<ConstraintViolation<Person>> constraintViolations = validator.validate(person);
+
+		assertThat(constraintViolations).isEmpty();
+	}
+
+	@Test
+	void shouldNotValidateOwnerWhenAddressBlank() {
+		LocaleContextHolder.setLocale(Locale.ENGLISH);
+		Owner owner = createValidOwner();
+		owner.setAddress("");
+
+		Validator validator = createValidator();
+		Set<ConstraintViolation<Owner>> constraintViolations = validator.validate(owner);
+
+		assertThat(constraintViolations).hasSize(1);
+		assertThat(constraintViolations.iterator().next().getPropertyPath()).hasToString("address");
+	}
+
+	@Test
+	void shouldNotValidateOwnerWhenCityBlank() {
+		LocaleContextHolder.setLocale(Locale.ENGLISH);
+		Owner owner = createValidOwner();
+		owner.setCity("");
+
+		Validator validator = createValidator();
+		Set<ConstraintViolation<Owner>> constraintViolations = validator.validate(owner);
+
+		assertThat(constraintViolations).hasSize(1);
+		assertThat(constraintViolations.iterator().next().getPropertyPath()).hasToString("city");
+	}
+
+	@Test
+	void shouldNotValidateOwnerWhenTelephoneInvalid() {
+		LocaleContextHolder.setLocale(Locale.ENGLISH);
+		Owner owner = createValidOwner();
+		owner.setTelephone("12345");
+
+		Validator validator = createValidator();
+		Set<ConstraintViolation<Owner>> constraintViolations = validator.validate(owner);
+
+		assertThat(constraintViolations).hasSize(1);
+		assertThat(constraintViolations.iterator().next().getPropertyPath()).hasToString("telephone");
+	}
+
+	@Test
+	void shouldNotValidateOwnerWhenTelephoneHasLetters() {
+		LocaleContextHolder.setLocale(Locale.ENGLISH);
+		Owner owner = createValidOwner();
+		owner.setTelephone("abcdefghij");
+
+		Validator validator = createValidator();
+		Set<ConstraintViolation<Owner>> constraintViolations = validator.validate(owner);
+
+		assertThat(constraintViolations).hasSize(1);
+		assertThat(constraintViolations.iterator().next().getPropertyPath()).hasToString("telephone");
+	}
+
+	@Test
+	void shouldValidateOwnerWhenAllFieldsValid() {
+		LocaleContextHolder.setLocale(Locale.ENGLISH);
+		Owner owner = createValidOwner();
+
+		Validator validator = createValidator();
+		Set<ConstraintViolation<Owner>> constraintViolations = validator.validate(owner);
+
+		assertThat(constraintViolations).isEmpty();
+	}
+
+	@Test
+	void shouldNotValidateVisitWhenDescriptionBlank() {
+		LocaleContextHolder.setLocale(Locale.ENGLISH);
+		Visit visit = new Visit();
+		visit.setDescription("");
+
+		Validator validator = createValidator();
+		Set<ConstraintViolation<Visit>> constraintViolations = validator.validate(visit);
+
+		assertThat(constraintViolations).hasSize(1);
+		assertThat(constraintViolations.iterator().next().getPropertyPath()).hasToString("description");
+	}
+
+	private Owner createValidOwner() {
+		Owner owner = new Owner();
+		owner.setFirstName("John");
+		owner.setLastName("Smith");
+		owner.setAddress("123 Main St");
+		owner.setCity("Springfield");
+		owner.setTelephone("1234567890");
+		return owner;
 	}
 
 }

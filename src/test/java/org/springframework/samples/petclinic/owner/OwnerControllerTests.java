@@ -33,7 +33,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.empty;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasProperty;
@@ -226,6 +228,14 @@ class OwnerControllerTests {
 			.andExpect(model().attribute("owner",
 					hasProperty("pets", hasItem(hasProperty("visits", hasSize(greaterThan(0)))))))
 			.andExpect(view().name("owners/ownerDetails"));
+	}
+
+	@Test
+	void showOwnerNotFound() {
+		given(this.owners.findById(99)).willReturn(Optional.empty());
+		Exception exception = assertThrows(jakarta.servlet.ServletException.class,
+				() -> mockMvc.perform(get("/owners/{ownerId}", 99)));
+		assertThat(exception.getCause()).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
